@@ -1,0 +1,65 @@
+:root {
+    --background-color: #1A1A1A;
+    --text-color: #EAEAEA;
+    --text-color-dark: #999999;
+    --circle-default-color: #333333; /* Cinza neutro */
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.experiment-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.stimulus-circle {
+    width: 200px;
+    height: 200px;
+    background-color: var(--circle-default-color);
+    border-radius: 50%;
+    margin-bottom: 40px;
+    /* Adiciona uma transição suave para a mudança de cor */
+    transition: background-color 0.5s ease;
+}
+
+.instruction-text {
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--text-color-dark);
+    margin: 0;
+}
+
+/* Classes de exemplo para mudança de cor (serão ativadas via JS) */
+.stimulus-circle.active {
+    background-color: #00BFFF; /* Azul para "faça o movimento" */
+}
+
+.stimulus-circle.relax {
+    background-color: #FF4136; /* Vermelho para "relaxe" */
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .stimulus-circle {
+        width: 150px;
+        height: 150px;
+    }
+
+    .instruction-text {
+        font-size: 1.5rem;
+    }
+}

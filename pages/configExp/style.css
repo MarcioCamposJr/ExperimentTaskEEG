@@ -1,0 +1,235 @@
+:root {
+    --background-color: #1A1A1A;
+    --panel-color: #2C2C2C;
+    --text-color: #EAEAEA;
+    --text-color-dark: #999999;
+    --accent-color: #00BFFF;
+    --success-color: #28a745;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 2rem;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.config-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.card {
+    background-color: var(--panel-color);
+    border-radius: 12px;
+    padding: 25px 30px;
+    border: 1px solid #333;
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+    color: var(--accent-color);
+}
+
+.task-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 25px;
+}
+
+.task-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #555;
+    border-radius: 20px;
+    background-color: transparent;
+    color: var(--text-color-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.task-button:hover {
+    background-color: #444;
+    color: var(--text-color);
+}
+
+.task-button.selected {
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    border-color: var(--accent-color);
+    font-weight: 700;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    align-items: end;
+}
+
+.tms-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: center;
+}
+
+.tms-grid label {
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--text-color-dark);
+    text-align: right;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 10px;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--text-color-dark);
+}
+
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.form-group input:disabled {
+    background-color: #222;
+    cursor: not-allowed;
+}
+
+.tms-toggle-button {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--success-color);
+    border-radius: 4px;
+    background-color: var(--success-color);
+    color: #FFF;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #555;
+    transition: .4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px; width: 20px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+input:disabled + .slider { background-color: #333; }
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.start-button-container {
+    text-align: right;
+    margin-top: 2rem;
+}
+
+.start-button {
+    padding: 15px 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.start-button:hover {
+    background-color: #FFF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+    .config-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    .start-button-container {
+        text-align: center;
+    }
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor do Experimento</title>
+    <link rel="stylesheet" href="/static/monitor/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="dashboard">
+        <header class="dashboard-header">
+            <h1 class="title">Painel de Monitoramento</h1>
+            <h2 class="subtitle">Experimento EEG</h2>
+        </header>
+
+        <section class="display-grid">
+            <div class="panel trial-panel">
+                <h3 class="panel-title">Trial</h3>
+                <div class="panel-value" id="trial-counter">--<span class="total">/ --</span></div>
+            </div>
+            <div class="panel timer-panel">
+                <h3 class="panel-title">Tempo do Trial</h3>
+                <div class="panel-value" id="trial-timer">00:00</div>
+            </div>
+            <div class="panel total-time-panel">
+                <h3 class="panel-title">Tempo Total Restante</h3>
+                <div class="panel-value" id="total-time">00:00</div>
+            </div>
+        </section>
+
+        <section class="control-panel">
+            <button class="control-button" id="pause-button" aria-label="Pausar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-pause-circle">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="10" y1="15" x2="10" y2="9"></line>
+                    <line x1="14" y1="15" x2="14" y2="9"></line>
+                </svg>
+            </button>
+            <button class="control-button" id="cancel-button" aria-label="Cancelar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-stop-circle">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                </svg>
+            </button>
+        </section>
+    </main>
+    <script src="/static/monitor/config.js"></script>
+</body>
+</html>

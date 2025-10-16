@@ -1,0 +1,137 @@
+:root {
+    --background-color: #1A1A1A;
+    --panel-color: #2C2C2C;
+    --text-color: #EAEAEA;
+    --text-color-dark: #999999;
+    --accent-color: #00BFFF;
+    --danger-color: #FF4136;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.dashboard {
+    width: 90%;
+    max-width: 600px;
+    background-color: var(--panel-color);
+    border-radius: 16px;
+    padding: 30px 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 20px;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--text-color-dark);
+    margin: 5px 0 0 0;
+}
+
+.display-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.panel {
+    background-color: var(--background-color);
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+}
+
+.panel-title {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-color-dark);
+    margin: 0 0 15px 0;
+}
+
+.panel-value {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.panel-value .total {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--text-color-dark);
+}
+
+.timer-panel .panel-value {
+    color: var(--accent-color);
+}
+
+.control-panel {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+}
+
+.control-button {
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    color: var(--text-color-dark);
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.control-button:hover {
+    transform: scale(1.1);
+}
+
+#pause-button:hover {
+    color: var(--accent-color);
+}
+
+#cancel-button:hover {
+    color: var(--danger-color);
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .dashboard {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .display-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .panel-value {
+        font-size: 3rem;
+    }
+}
