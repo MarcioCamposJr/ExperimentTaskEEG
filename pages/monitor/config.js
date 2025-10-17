@@ -3,56 +3,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const trialCounterElement = document.getElementById('trial-counter');
     const trialTimerElement = document.getElementById('trial-timer');
     const totalTimeElement = document.getElementById('total-time');
+    const pauseButtom = document.getElementById("pause-button");
+    const cancelButtom = document.getElementById("cancel-button")
 
     let pollingInterval;
     let wasRunning = false;
 
+    // FUNÇÃO AUXILIAR: Converte segundos (float) em string "MM:SS"
+    const formatDuration = (seconds) => {
+        if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) {
+            return "00:00";
+        }
+        
+        // Arredonda para o segundo inteiro mais próximo
+        const totalSeconds = Math.floor(seconds); 
+        const minutes = Math.floor(totalSeconds / 60);
+        const remainingSeconds = totalSeconds % 60;
+        
+        const pad = (num) => String(num).padStart(2, '0');
+
+        return `${pad(minutes)}:${pad(remainingSeconds)}`;
+    };
+
+    const postStatus = async (status) => {
+        console.log('postStatus called with:', status);
+        try{
+            const response = await fetch('/status-exp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(status)
+            });
+            console.log('post', status);
+            // Verifica a resposta do post, mas não é estritamente necessário processar o JSON aqui.
+        }catch (error) {
+            console.error('Erro ao enviar status:', error);
+        }
+
+    };
+
     const updateStatus = async () => {
         try {
             const response = await fetch('/state-exp');
+            // Verifica se a resposta foi bem-sucedida antes de tentar ler o JSON
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
 
             if (data.is_running) {
                 wasRunning = true;
 
-                // 1. Usa a chave `idx_trial` e exibe apenas o número do trial atual.
+                // 1. Exibe o índice do trial
                 trialCounterElement.innerHTML = data.idx_trial;
 
-                // 2. Pega as strings de tempo e as formata para exibição.
-                trialTimerElement.textContent = cleanTimeString(data.time_remaining_trial);
-                totalTimeElement.textContent = cleanTimeString(data.time_remaining);
+                // 2. Formata e exibe o tempo restante
+                // Esperamos que data.time_remaining_trial e data.time_remaining sejam agora números (segundos)
+                trialTimerElement.textContent = formatDuration(data.time_remaining_trial);
+                totalTimeElement.textContent = formatDuration(data.time_remaining);
 
             } else {
-                if (wasRunning) {
+                if (wasRunning) { // A experiência acabou
                     trialCounterElement.innerHTML = 'Finalizado';
                     trialTimerElement.textContent = "00:00";
                     totalTimeElement.textContent = "00:00";
                     if (pollingInterval) {
                         clearInterval(pollingInterval);
+                        console.log("Polling finalizado.");
                     }
                 }
             }
 
         } catch (error) {
             console.error("Erro ao buscar status:", error);
+            // Parar o polling em caso de erro persistente de rede/servidor
             if (pollingInterval) {
                 clearInterval(pollingInterval);
             }
         }
     };
 
-    // 3. Nova função para limpar a string de tempo (ex: "00:00:04.945...Z" -> "00:04")
-    const cleanTimeString = (timeString) => {
-        if (!timeString || typeof timeString !== 'string') {
-            return "00:00";
-        }
-        // Pega a parte antes do ponto decimal
-        const parts = timeString.split('.')[0]; // ex: "00:00:04"
-        // Retorna apenas a parte de minutos e segundos
-        return parts.substring(3);
-    };
+    // --- Listeners de Botão ---
+    pauseButtom.addEventListener('click', async () =>{
+        // A lógica do backend deve alternar entre 'paused' e 'running'
+        const status = { status: 'paused'}; 
+        await postStatus(status);
+    });
+
+    cancelButtom.addEventListener('click', async () =>{
+        const status = { status: 'canceled'};
+        await postStatus(status);
+        window.location.href ='/config';
+    });
+    // --- Fim Listeners de Botão ---
 
     // Inicia o polling.
     updateStatus();
-    pollingInterval = setInterval(updateStatus, 50);
+    pollingInterval = setInterval(updateStatus, 50); // Polling rápido para atualização fluida
 });

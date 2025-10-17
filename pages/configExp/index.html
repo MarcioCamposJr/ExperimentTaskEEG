@@ -18,7 +18,6 @@
 
         <main class="content">
             <div class="config-layout">
-                <!-- Coluna Principal: Task -->
                 <section class="card task-selection">
                     <h2>Task</h2>
                     <div class="task-list">
@@ -46,22 +45,61 @@
                 <section class="card tms-settings">
                     <h2>TMS</h2>
                     <div class="tms-grid">
-                        <label>Ativação</label>
-                        <button class="tms-toggle-button">Ativar TMS</button>
-
-                        <label for="tms-stim-time">Tempo do estímulo (ms)</label>
-                        <input type="number" id="tms-stim-time" name="tms-stim-time" value="100" disabled>
-
-                        <label for="tms-intercalate">Intercalar entre trials</label>
-                        <label class="switch">
-                            <input type="checkbox" id="tms-intercalate" name="tms-intercalate" disabled>
-                            <span class="slider"></span>
-                        </label>
+                        <div class="form-group">
+                            <label>Ativação</label>
+                            <button class="tms-toggle-button">Ativar TMS</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="tms-stim-time">Tempo do estímulo (ms)</label>
+                            <input type="number" id="tms-stim-time" name="tms-stim-time" value="100" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="tms-intercalate">Intercalar entre trials</label>
+                            <label class="switch">
+                                <input type="checkbox" id="tms-intercalate" name="tms-intercalate" disabled>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </section>
-            </div>
 
-            <!-- Botão de Iniciar -->
+                <section class="card arduino-settings">
+                    <h2>Trigger System</h2>
+                    <div class="arduino-grid">
+                        <div class="form-group">
+                            <label for="arduino-port">Port</label>
+                            <select id="arduino-port" name="arduino-port">
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="arduino-baudrate">Baudrate</label>
+                            <input type="number" id="arduino-baudrate" name="arduino-baudrate" value="9600">
+                        </div>
+                    </div>
+                    <button class="connect-button" id="connect-buttom-trigger">Conectar</button>
+                    <div class="connection-status">
+                        <span class="status-indicator"></span>
+                        <span class="status-text">Desconectado</span>
+                    </div>
+                </section>
+
+                <section class="card navigation-settings">
+                    <h2>Navigation System</h2>
+                    <div class="form-group">
+                        <label for="nav-system-link">Link</label>
+                        <input type="text" id="nav-system-link" name="nav-system-link" placeholder="http://...">
+                    </div>
+                    <button class="connect-button"  id="connect-buttom-navigation">Conectar</button>
+                    <div class="connection-status">
+                        <span class="status-indicator"></span>
+                        <span class="status-text">Desconectado</span>
+                    </div>
+                </section>
+
+                </div>
+
             <div class="start-button-container">
                 <button class="start-button">START</button>
             </div>

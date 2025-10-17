@@ -1,9 +1,6 @@
 import serial
 import serial.tools.list_ports as lp
 
-available_ports = [port.description for port in lp.comports()]
-print(available_ports)
-
 class ArduinoConnection():
     def __init__(self):
         self.device = None

@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskListContainer = document.querySelector('.task-list');
     const trialTypeGroup = document.getElementById('trial-type-gruop');
     const trialTypeSelect = document.getElementById('trial-type');
+
+    const arduinoPort= document.getElementById('arduino-port');
+    const triggerConnectButtom = document.querySelector('.arduino-settings .connect-button');
+    const triggerStatusIndicator = document.querySelector('.arduino-settings .status-indicator');
+    const triggerStatusText = document.querySelector('.arduino-settings .status-text');
+
     const startButton = document.querySelector('.start-button'); 
 
     function updateUIForTask(taskId){
@@ -55,6 +61,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const getTriggerPorts = async () =>{
+
+        try{
+            const response = await fetch('/ports-trigger');
+            // Verifica se a resposta foi bem-sucedida antes de tentar ler o JSON
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            data.forEach((port, index) => {
+                const option = document.createElement('option');
+                option.value = port;
+                option.textContent = port;
+                arduinoPort.appendChild(option);
+            });
+
+        }catch{
+            console.error("Erro ao buscar status:", error);
+        }
+
+    }
+
+    triggerConnectButtom.addEventListener('click', async () => {
+        const config = {
+            port: arduinoPort.value,
+            boudrate: parseInt(document.getElementById('arduino-baudrate').value || 9600)
+        };
+
+        try {
+            const response = await fetch('/connect-trigger', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            });
+
+            const is_connected_trigger = await response.json();
+
+            if (is_connected_trigger) {
+                triggerStatusIndicator.classList.add('connected');
+                triggerStatusIndicator.classList.remove('error');
+                triggerStatusText.textContent = 'Conectado';
+            } else {
+                triggerStatusIndicator.classList.add('error');
+                triggerStatusIndicator.classList.remove('connected');
+                triggerStatusText.textContent = 'Falha na conexão';
+            }
+
+        } catch (error) {
+            console.error('Erro ao enviar configuração:', error);
+            triggerStatusIndicator.classList.add('error');
+            triggerStatusIndicator.classList.remove('connected');
+            triggerStatusText.textContent = 'Erro';
+        }
+    });
+
+    getTriggerPorts();
     initializeTaskButtons();
 
     if(TASK_CONFIG.length > 0){
@@ -78,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify(config) // converte objeto JS para JSON
             });
-            console.log('post', config)
+            console.log('post', config);
             const data = await response.json();
             console.log('Resposta do servidor:', data);
             window.location.href ='/monitor';

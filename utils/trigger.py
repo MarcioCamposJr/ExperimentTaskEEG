@@ -1,8 +1,14 @@
 from components.arduino_connection import ArduinoConnection
 from config import settings
+import re
 
 arduino = ArduinoConnection()
-arduino.connect(settings.ARDUINO_PORT, settings.BOUND_RATE_ARDUINO)
+
+def connecet_trigger(port, boud_rate = None):
+    match = re.search(r'COM\d+', port)
+    arduino.connect(match.group(), boud_rate)
+    return arduino.arduino_connected
 
 def pulse_default_trigger():
-    arduino.send_to_arduino("single") 
+    if arduino.arduino_connected:
+        arduino.send_to_arduino("single")
