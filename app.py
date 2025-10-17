@@ -5,6 +5,7 @@ from starlette.staticfiles import StaticFiles
 from routers.pages import router_pages
 from routers.manipulators.experiment_config import config_routers
 from routers.manipulators.trigger_system import trigger_routers
+from routers.manipulators.tms_system import tms_routers
 from config import settings
 
 app = FastAPI()
@@ -14,7 +15,8 @@ app.state.experiment = {
     "current_step": 0,
     "is_running": False,
     "color": "gray",
-    "instruction": "Aguarde"
+    "instruction": "Aguarde",
+    'tms': False
 }
 
 app.mount("/static", StaticFiles(directory="pages"), name="static")
@@ -22,10 +24,12 @@ app.mount("/static", StaticFiles(directory="pages"), name="static")
 app.include_router(router_pages)
 app.include_router(config_routers)
 app.include_router(trigger_routers)
+app.include_router(tms_routers)
+
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "app:app",
         host="0.0.0.0", 
         port=settings.PORT,
         reload=True

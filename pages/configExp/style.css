@@ -5,6 +5,7 @@
     --text-color-dark: #999999;
     --accent-color: #00BFFF;
     --success-color: #28a745;
+    --danger-color: #FF4136;
 }
 
 body {
@@ -18,28 +19,29 @@ body {
 
 .main-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 80lh;
     margin: 0 auto;
 }
 
 .header {
     text-align: left;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .header h1 {
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: 500;
     color: var(--text-color);
+    margin-bottom: 0.5rem;
 }
 
 .config-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     grid-template-rows: auto auto;
     grid-template-areas:
-        "task task task"
-        "tms trigger nav";
+        "task trigger"
+        "tms tms";
     gap: 1.5rem;
     width: 100%;
 }
@@ -53,19 +55,32 @@ body {
     flex-direction: column;
 }
 
-.card h2 {
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin: 0 0 20px 0;
+.card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid #444;
+}
+
+.card-sub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+.card h2, .card h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
     color: var(--accent-color);
+    margin: 0;
 }
 
 .task-selection { grid-area: task; }
-.tms-settings { grid-area: tms; }
 .arduino-settings { grid-area: trigger; }
-.navigation-settings { grid-area: nav; }
+.tms-settings { grid-area: tms; }
 
 .task-list {
     display: flex;
@@ -103,21 +118,6 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 20px;
     align-items: end;
-}
-
-.tms-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex-grow: 1;
-    justify-content: space-between;
-}
-
-.tms-grid .form-group {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
 }
 
 .form-group {
@@ -161,8 +161,110 @@ body {
     cursor: not-allowed;
 }
 
+.start-button-container {
+    text-align: right;
+    margin-top: 1.5rem;
+}
+
+.start-button {
+    padding: 15px 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.start-button:hover {
+    background-color: #FFF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
+}
+
+.arduino-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: auto;
+}
+
+.connect-button {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    background-color: transparent;
+    color: var(--accent-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.connect-button:hover {
+    background-color: var(--accent-color);
+    color: var(--background-color);
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.card-header .connection-status {
+    margin-top: 0;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #999;
+    transition: background-color 0.3s ease;
+}
+
+.status-indicator.connected {
+    background-color: var(--success-color);
+}
+
+.status-indicator.error {
+    background-color: #dc3545;
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: var(--text-color-dark);
+}
+
+.tms-body {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.tms-connection-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    align-items: end;
+}
+
+.tms-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
 .tms-toggle-button {
-    width: 130px; /* Fixed width */
+    width: 100%;
     padding: 12px;
     border: 1px solid var(--success-color);
     border-radius: 4px;
@@ -171,6 +273,11 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
+}
+
+.tms-toggle-button.active {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
 }
 
 .switch {
@@ -211,86 +318,9 @@ input:checked + .slider:before {
     transform: translateX(22px);
 }
 
-.start-button-container {
-    text-align: right;
-    margin-top: 1.5rem;
-}
-
-.start-button {
-    padding: 15px 50px;
-    font-size: 1.2rem;
-    font-weight: 700;
-    border: none;
-    border-radius: 4px;
-    background-color: var(--accent-color);
-    color: var(--background-color);
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-}
-
-.start-button:hover {
-    background-color: #FFF;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.3);
-}
-
-.arduino-grid {
+.navigation-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: auto;
-}
-
-.navigation-settings .form-group {
-    margin-bottom: auto;
-}
-
-.connect-button {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--accent-color);
-    border-radius: 4px;
-    background-color: transparent;
-    color: var(--accent-color);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 20px;
-}
-
-.connect-button:hover {
-    background-color: var(--accent-color);
-    color: var(--background-color);
-}
-
-.connection-status {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.status-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #999;
-    transition: background-color 0.3s ease;
-}
-
-.status-indicator.connected {
-    background-color: var(--success-color);
-}
-
-.status-indicator.error {
-    background-color: #dc3545;
-}
-
-.status-text {
-    font-size: 0.9rem;
-    color: var(--text-color-dark);
+    grid-template-columns: 1fr;
 }
 
 @media (max-width: 900px) {
@@ -299,8 +329,10 @@ input:checked + .slider:before {
         grid-template-rows: auto;
         grid-template-areas:
             "task"
-            "tms"
             "trigger"
-            "nav";
+            "tms";
+    }
+    .tms-body {
+        grid-template-columns: 1fr;
     }
 }

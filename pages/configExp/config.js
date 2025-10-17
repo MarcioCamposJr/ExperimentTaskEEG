@@ -16,7 +16,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const triggerStatusIndicator = document.querySelector('.arduino-settings .status-indicator');
     const triggerStatusText = document.querySelector('.arduino-settings .status-text');
 
+    const tmsPort = document.getElementById('tms-port');
+    const tmsConnectButtom = document.getElementById('connect-buttom-tms');
+    const tmsStatusIndicator = document.querySelector('.tms-settings .status-indicator');
+    const tmsStatusText = document.querySelector('.tms-settings .status-text');
+
+    const tmsStartButton = document.querySelector('.tms-toggle-button');
+
     const startButton = document.querySelector('.start-button'); 
+
+    let isTmsActive = false;
+
+    function updateTmsButtonState() {
+        if (isTmsActive) {
+            tmsStartButton.classList.add('active');
+            tmsStartButton.textContent = 'Desativar TMS';
+        } else {
+            tmsStartButton.classList.remove('active');
+            tmsStartButton.textContent = 'Ativar TMS';
+        }
+    }
 
     function updateUIForTask(taskId){
         const selectedTask = TASK_CONFIG.find(task => task.id === taskId);
@@ -65,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try{
             const response = await fetch('/ports-trigger');
-            // Verifica se a resposta foi bem-sucedida antes de tentar ler o JSON
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -79,11 +97,58 @@ document.addEventListener('DOMContentLoaded', async () => {
                 arduinoPort.appendChild(option);
             });
 
-        }catch{
+        }catch(error){
             console.error("Erro ao buscar status:", error);
         }
 
     }
+    const getTMSPorts = async () =>{
+
+        try{
+            const response = await fetch('/ports-tms');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            data.forEach((port, index) => {
+                const option = document.createElement('option');
+                option.value = port.name;
+                option.textContent = port.description;
+                tmsPort.appendChild(option);
+            });
+
+        }catch(error){
+            console.error("Erro ao buscar status:", error);
+        }
+
+    }
+    const checkTmsConnection = async () => {
+        try {
+            const response = await fetch('/get-connection-tms');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const connectionStatus = await response.json();
+
+            if (connectionStatus.is_connected) {
+                tmsStatusIndicator.classList.add('connected');
+                tmsStatusIndicator.classList.remove('error');
+                tmsStatusText.textContent = 'Conectado';
+                document.getElementById('tms-port').value = connectionStatus.port;
+            } else {
+                tmsStatusIndicator.classList.remove('connected');
+                tmsStatusIndicator.classList.remove('error');
+                tmsStatusText.textContent = 'Desconectado';
+            }
+        } catch (error) {
+            console.error('Erro ao verificar conexão do tms:', error);
+            tmsStatusIndicator.classList.add('error');
+            tmsStatusIndicator.classList.remove('connected');
+            tmsStatusText.textContent = 'Erro';
+        }
+    };
 
     const checkTriggerConnection = async () => {
         try {
@@ -109,6 +174,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             triggerStatusIndicator.classList.add('error');
             triggerStatusIndicator.classList.remove('connected');
             triggerStatusText.textContent = 'Erro';
+        }
+    };
+
+    const checkTmsStatus = async () => {
+        try {
+            const response = await fetch('/get-tms-status');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const status = await response.json();
+            isTmsActive = status.is_active;
+            updateTmsButtonState();
+        } catch (error) {
+            console.error('Erro ao verificar status do TMS:', error);
         }
     };
 
@@ -147,32 +226,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    await getTriggerPorts();
-    await checkTriggerConnection();
-    initializeTaskButtons();
-
-    if(TASK_CONFIG.length > 0){
-        updateUIForTask(TASK_CONFIG[0].id);
-    }
-
-    startButton.addEventListener('click', async () => {
-
+    tmsConnectButtom.addEventListener('click', async () => {
         const config = {
-        num_trials: parseInt(document.getElementById('num-trials').value || 10),
-        task_duration_seconds: parseInt(document.getElementById('trial-duration').value || 5),
-        rest_duration_seconds: parseInt(document.getElementById('trial-duration').value || 5),
-        movement_type: trialTypeSelect.value.replace('_', ' ') // pega o valor selecionado
+            port: tmsPort.value,
+            port_name: tmsPort.options[tmsPort.selectedIndex].textContent
         };
 
-        try{
-            const response = await fetch('http://127.0.0.1:8000/set-config', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // muito importante
-            },
-            body: JSON.stringify(config) // converte objeto JS para JSON
+        try {
+            const response = await fetch('/connect-tms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
             });
-            console.log('post', config);
+
+            const is_connected_tms = await response.json();
+
+            if (is_connected_tms) {
+                tmsStatusIndicator.classList.add('connected');
+                tmsStatusIndicator.classList.remove('error');
+                tmsStatusText.textContent = 'Conectado';
+            } else {
+                tmsStatusIndicator.classList.add('error');
+                tmsStatusIndicator.classList.remove('connected');
+                tmsStatusText.textContent = 'Falha na conexão';
+            }
+
+        } catch (error) {
+            console.error('Erro ao enviar configuração:', error);
+            tmsStatusIndicator.classList.add('error');
+            tmsStatusIndicator.classList.remove('connected');
+            tmsStatusText.textContent = 'Erro';
+        }
+    });
+
+    
+    startButton.addEventListener('click', async () => {
+        
+        const config = {
+            num_trials: parseInt(document.getElementById('num-trials').value || 10),
+            task_duration_seconds: parseInt(document.getElementById('trial-duration').value || 5),
+            rest_duration_seconds: parseInt(document.getElementById('trial-duration').value || 5),
+            movement_type: trialTypeSelect.value.replace('_', ' '),
+            tms_time: parseInt(document.getElementById('tms-stim-time').value || 0)
+        };
+        
+        try{
+            const response = await fetch('/set-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify(config) 
+            });
             const data = await response.json();
             console.log('Resposta do servidor:', data);
             window.location.href ='/monitor';
@@ -180,4 +287,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Erro ao enviar configuração:', error);
         }
     });
+
+    tmsStartButton.addEventListener('click', async () => {
+        isTmsActive = !isTmsActive;
+        const config = {'enable': isTmsActive};
+        try {
+            const response = await fetch('/enable-tms',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify(config) 
+            });
+            if (!response.ok) {
+                isTmsActive = !isTmsActive;
+                throw new Error(`Erro ao buscar dados: ${response.status} ${response.statusText}`);
+            }
+            updateTmsButtonState();
+        }catch (error) {
+            console.error('Erro ao enviar configuração:', error);
+        }
+    });
+
+    await getTMSPorts();
+    await checkTmsConnection();
+    await getTriggerPorts();
+    await checkTriggerConnection();
+    await checkTmsStatus();
+    initializeTaskButtons();
+    
+    if(TASK_CONFIG.length > 0){
+        updateUIForTask(TASK_CONFIG[0].id);
+    }
 });

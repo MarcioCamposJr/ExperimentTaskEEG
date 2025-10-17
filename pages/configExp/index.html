@@ -19,7 +19,9 @@
         <main class="content">
             <div class="config-layout">
                 <section class="card task-selection">
-                    <h2>Task</h2>
+                    <div class= "card-header">  
+                        <h2>Task</h2>
+                    </div> 
                     <div class="task-list">
                     </div>
 
@@ -42,29 +44,10 @@
                     </div>
                 </section>
 
-                <section class="card tms-settings">
-                    <h2>TMS</h2>
-                    <div class="tms-grid">
-                        <div class="form-group">
-                            <label>Ativação</label>
-                            <button class="tms-toggle-button">Ativar TMS</button>
-                        </div>
-                        <div class="form-group">
-                            <label for="tms-stim-time">Tempo do estímulo (ms)</label>
-                            <input type="number" id="tms-stim-time" name="tms-stim-time" value="100" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="tms-intercalate">Intercalar entre trials</label>
-                            <label class="switch">
-                                <input type="checkbox" id="tms-intercalate" name="tms-intercalate" disabled>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </section>
-
                 <section class="card arduino-settings">
-                    <h2>Trigger System</h2>
+                    <div class= "card-header">  
+                        <h2>Trigger System</h2>
+                    </div>
                     <div class="arduino-grid">
                         <div class="form-group">
                             <label for="arduino-port">Port</label>
@@ -85,20 +68,62 @@
                     </div>
                 </section>
 
-                <section class="card navigation-settings">
-                    <h2>Navigation System</h2>
-                    <div class="form-group">
-                        <label for="nav-system-link">Link</label>
-                        <input type="text" id="nav-system-link" name="nav-system-link" placeholder="http://...">
+                <section class="card tms-settings">
+                    <div class="card-header">
+                        <h2>TMS</h2>
+                        <div class="connection-status">
+                            <span class="status-indicator"></span>
+                            <span class="status-text">Desconectado</span>
+                        </div>
                     </div>
-                    <button class="connect-button"  id="connect-buttom-navigation">Conectar</button>
-                    <div class="connection-status">
-                        <span class="status-indicator"></span>
-                        <span class="status-text">Desconectado</span>
+                    <div class="tms-body">
+                        <div class="tms-main-controls">
+                            <div class="tms-connection-grid">
+                                <div class="form-group">
+                                    <label for="tms-port">Port</label>
+                                    <select id="tms-port" name="tms-port">
+                                        <!-- Options will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                                <button class="connect-button" id="connect-buttom-tms">Conectar</button>
+                            </div>
+                            <div class="tms-controls-grid">
+                                <div class="form-group">
+                                    <label>Ativação</label>
+                                    <button class="tms-toggle-button">Ativar TMS</button>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tms-stim-time">Tempo do estímulo (ms)</label>
+                                    <input type="number" id="tms-stim-time" name="tms-stim-time" value="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tms-intercalate">Intercalar entre trials</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="tms-intercalate" name="tms-intercalate" disabled>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="navigation-system-content">
+                            <div class="card-sub-header">
+                                <h3>Navigation System</h3>
+                            </div>
+                            <div class="navigation-grid">
+                                <div class="form-group">
+                                    <label for="nav-system-link">Link</label>
+                                    <input type="text" id="nav-system-link" name="nav-system-link" placeholder="http://...">
+                                </div>
+                                <button class="connect-button" id="connect-buttom-navigation">Conectar</button>
+                            </div>
+                            <div class="connection-status">
+                                <span class="status-indicator"></span>
+                                <span class="status-text">Desconectado</span>
+                            </div>
+                        </div>
                     </div>
                 </section>
-
-                </div>
+            </div>
 
             <div class="start-button-container">
                 <button class="start-button">START</button>

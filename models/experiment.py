@@ -21,6 +21,7 @@ class FingerTappingConfig(BaseModel):
     task_duration_seconds: int
     rest_duration_seconds: int
     movement_type: MovementType
+    tms_time: float = 0
 
 class FingerTappingState(BaseModel):
     is_running: bool
