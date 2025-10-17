@@ -4,12 +4,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const trialTimerElement = document.getElementById('trial-timer');
     const totalTimeElement = document.getElementById('total-time');
     const pauseButtom = document.getElementById("pause-button");
-    const cancelButtom = document.getElementById("cancel-button")
+    const cancelButtom = document.getElementById("cancel-button");
+    const triggerStatusIndicator = document.getElementById('trigger-status-indicator');
+    const triggerStatusText = document.getElementById('trigger-status-text');
 
     let pollingInterval;
     let wasRunning = false;
 
     // FUNÇÃO AUXILIAR: Converte segundos (float) em string "MM:SS"
+    const checkTriggerConnection = async () => {
+        try {
+            const response = await fetch('/get-connection-trigger');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const connectionStatus = await response.json();
+
+            if (connectionStatus.is_connected) {
+                triggerStatusIndicator.classList.add('connected');
+                triggerStatusIndicator.classList.remove('error');
+                triggerStatusText.textContent = 'Trigger Conectado';
+            } else {
+                triggerStatusIndicator.classList.remove('connected');
+                triggerStatusIndicator.classList.add('error');
+                triggerStatusText.textContent = 'Trigger Desconectado';
+            }
+        } catch (error) {
+            console.error('Erro ao verificar conexão do trigger:', error);
+            triggerStatusIndicator.classList.add('error');
+            triggerStatusIndicator.classList.remove('connected');
+            triggerStatusText.textContent = 'Erro de Conexão';
+        }
+    };
+
     const formatDuration = (seconds) => {
         if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) {
             return "00:00";
@@ -101,5 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicia o polling.
     updateStatus();
-    pollingInterval = setInterval(updateStatus, 50); // Polling rápido para atualização fluida
+    pollingInterval = setInterval(updateStatus, 500); // Polling rápido para atualização fluida
+    checkTriggerConnection();
+    setInterval(checkTriggerConnection, 500); // Check every 5 seconds
 });

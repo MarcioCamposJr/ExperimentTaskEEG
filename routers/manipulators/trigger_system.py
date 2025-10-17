@@ -12,5 +12,12 @@ async def get_ports(request: Request):
     return available_ports
 
 @trigger_routers.post("/connect-trigger")
-async def get_ports(config: trigger_models.TriggerConfig, request: Request):
-    return trigger.connecet_trigger(config.port, config.boudrate)
+async def try_connect(config: trigger_models.TriggerConfig, request: Request):
+    return trigger.connect_trigger(config.port, config.boudrate)
+
+@trigger_routers.get("/get-connection-trigger")
+async def get_connection(request: Request):
+    await trigger.arduino.check_connection()
+    return trigger_models.TriggerConnection(is_connected=trigger.arduino.arduino_connected,
+                                            boudrate=trigger.arduino.baudrate,
+                                            port_name=trigger.arduino.port_name)

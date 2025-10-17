@@ -114,6 +114,38 @@ body {
     color: var(--danger-color);
 }
 
+.connection-status-container {
+    margin-top: 15px;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #999; /* Default: disconnected */
+    transition: background-color 0.3s ease;
+}
+
+.status-indicator.connected {
+    background-color: #28a745; /* Success color */
+}
+
+.status-indicator.error {
+    background-color: #dc3545; /* Red for error */
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: var(--text-color-dark);
+}
+
 /* Responsividade */
 @media (max-width: 600px) {
     .dashboard {

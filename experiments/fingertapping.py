@@ -23,7 +23,7 @@ async def start_exp(config: FingerTappingConfig, sequence, app: FastAPI):
     app.state.experiment['exp_start_time'] = exp_start_time
     total_duration = config.task_duration_seconds * config.num_trials
     for idx_trial, stimulus in enumerate(sequence):
-        trigger.pulse_default_trigger()
+        await trigger.pulse_default_trigger()
 
         app.state.experiment['color'] = dict_stimulus[stimulus]['color']
         app.state.experiment['instruction'] = dict_stimulus[stimulus]['instruction']

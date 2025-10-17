@@ -6,7 +6,7 @@ const TASK_CONFIG = [
     },
 ]
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const taskListContainer = document.querySelector('.task-list');
     const trialTypeGroup = document.getElementById('trial-type-gruop');
     const trialTypeSelect = document.getElementById('trial-type');
@@ -85,6 +85,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
+    const checkTriggerConnection = async () => {
+        try {
+            const response = await fetch('/get-connection-trigger');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const connectionStatus = await response.json();
+
+            if (connectionStatus.is_connected) {
+                triggerStatusIndicator.classList.add('connected');
+                triggerStatusIndicator.classList.remove('error');
+                triggerStatusText.textContent = 'Conectado';
+                document.getElementById('arduino-port').value = connectionStatus.port_name;
+                document.getElementById('arduino-baudrate').value = connectionStatus.boudrate;
+            } else {
+                triggerStatusIndicator.classList.remove('connected');
+                triggerStatusIndicator.classList.remove('error');
+                triggerStatusText.textContent = 'Desconectado';
+            }
+        } catch (error) {
+            console.error('Erro ao verificar conexão do trigger:', error);
+            triggerStatusIndicator.classList.add('error');
+            triggerStatusIndicator.classList.remove('connected');
+            triggerStatusText.textContent = 'Erro';
+        }
+    };
+
     triggerConnectButtom.addEventListener('click', async () => {
         const config = {
             port: arduinoPort.value,
@@ -120,7 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    getTriggerPorts();
+    await getTriggerPorts();
+    await checkTriggerConnection();
     initializeTaskButtons();
 
     if(TASK_CONFIG.length > 0){

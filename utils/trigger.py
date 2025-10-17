@@ -4,11 +4,11 @@ import re
 
 arduino = ArduinoConnection()
 
-def connecet_trigger(port, boud_rate = None):
+def connect_trigger(port, boud_rate = None):
     match = re.search(r'COM\d+', port)
-    arduino.connect(match.group(), boud_rate)
+    arduino.connect(port=match.group(), baudrate = boud_rate, port_name=port)
     return arduino.arduino_connected
 
-def pulse_default_trigger():
+async def pulse_default_trigger():
     if arduino.arduino_connected:
-        arduino.send_to_arduino("single")
+        await arduino.send_to_arduino("single")
