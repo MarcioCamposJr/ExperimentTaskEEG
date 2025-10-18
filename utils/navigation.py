@@ -20,3 +20,6 @@ def process_status(nav_msg):
                 port = int(host_parts[1])
     
     return is_connected, is_on_target, address, port
+
+def on_taget():
+    return navigation.get_coil_at_target()

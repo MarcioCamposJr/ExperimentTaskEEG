@@ -1,5 +1,5 @@
 from models.experiment import FingerTappingConfig, FingerTappingStatus
-from utils import trigger, tms
+from utils import trigger, tms, navigation
 
 import asyncio
 from fastapi import FastAPI
@@ -49,13 +49,15 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
             app.state.experiment['remaining_duration'] = max(0, remaining_duration)
             app.state.experiment['time_remaining'] = max(0, total_duration)
             if app.state.experiment['tms'] and remaining_duration - config.task_duration_seconds < -(config.tms_time/ 1000) and not pulsed:
+                if navigation.navigation.is_connected:
+                    while not navigation.on_taget():
+                        await asyncio.sleep(sleep_check_interval)
                 pulsed = True
                 await tms.single_pulse()
 
     app.state.experiment['is_running'] = False
 
 def generate_sequence(taskType, num_trials):
-
     if taskType == "Unilateral":
         padrao = [0 , 1]
     elif taskType == "Bilateral":
