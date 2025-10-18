@@ -40,6 +40,6 @@ if __name__ == "__main__":
         "app:app",
         host=settings.IP, 
         port=settings.PORT,
-        reload=True
+        reload=settings.DEV
     )
 
