@@ -38,7 +38,7 @@ app.include_router(navigation_routers)
 if __name__ == "__main__":
     uvicorn.run(
         "app:app",
-        host="0.0.0.0", 
+        host=settings.IP, 
         port=settings.PORT,
         reload=True
     )

@@ -1,4 +1,4 @@
-import time
+import asyncio
 import socketio
 import threading
 from collections import deque
@@ -29,15 +29,16 @@ class NavigationMessaging:
                 with self.__lock:
                     self.__coil_at_target_history.append(state)
 
-    def try_connect(self, remote_host):
+    async def try_connect(self, remote_host):
         self.__remote_host = remote_host
         try:
             self.__sio.connect(self.__remote_host, wait_timeout=1)
             # Wait for connection to be established
             while not self.__connected:
                 print("Connecting to navigation system...")
-                time.sleep(1.0)
+                await asyncio.sleep(1.0)
             print("Navigation system connected.")
+
         except socketio.exceptions.ConnectionError as e:
             print(f"Connection to navigation system failed: {e}")
             self.__connected = False
@@ -50,6 +51,9 @@ class NavigationMessaging:
             if not self.__coil_at_target_history:
                 return False
             return all(list(self.__coil_at_target_history))
+
+    def get_host(self):
+        return self.__remote_host
 
     def is_connected(self):
         return self.__connected
