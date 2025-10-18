@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tmsStartButton = document.querySelector('.tms-toggle-button');
 
+    const navigationStatusIndicator = document.querySelector('.navigation-system-content .status-indicator');
+    const navigationStatusText = document.querySelector('.navigation-system-content .status-text')
+    const navigationButton = document.getElementById("connect-buttom-navigation");
+
     const startButton = document.querySelector('.start-button'); 
 
     let isTmsActive = false;
@@ -258,6 +262,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             tmsStatusIndicator.classList.add('error');
             tmsStatusIndicator.classList.remove('connected');
             tmsStatusText.textContent = 'Erro';
+        }
+    });
+
+    navigationButton.addEventListener('click', async () => {
+        const config = {
+            remote_host: document.getElementById("nav-system-link").value
+            // remote_host: document.querySelector(".navigation-system-content .status-indicator")
+        }
+        try{
+            const response = await fetch('/connection-navigation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify(config) 
+            });
+            const is_connected = await response.json();
+
+            if (is_connected) {
+                navigationStatusIndicator.classList.add('connected');
+                navigationStatusIndicator.classList.remove('error');
+                navigationStatusText.textContent = 'Conectado';
+            } else {
+                navigationStatusIndicator.classList.add('error');
+                navigationStatusIndicator.classList.remove('connected');
+                navigationStatusText.textContent = 'Falha na conexão';
+            }
+        }catch (error) {
+            console.error('Erro ao enviar configuração:', error);
+            navigationStatusIndicator.classList.add('error');
+            navigationStatusIndicator.classList.remove('connected');
+            navigationStatusText.textContent = 'Falha na conexão';
         }
     });
 

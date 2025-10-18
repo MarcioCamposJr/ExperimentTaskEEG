@@ -7,11 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelButtom = document.getElementById("cancel-button");
     const triggerStatusIndicator = document.getElementById('trigger-status-indicator');
     const triggerStatusText = document.getElementById('trigger-status-text');
+    const navigationStatusIndicator = document.getElementById('navigation-status-indicator');
+    const navigationStatusText = document.getElementById('navigation-status-text');
+    const tmsStatusIndicator = document.getElementById('tms-status-indicator');
+    const tmsStatusText = document.getElementById('tms-status-text');
+    const targetStatusIndicator = document.getElementById('on-target-status-indicator');
+    const targetStatusText = document.getElementById('on-target-status-text');
 
     let pollingInterval;
     let wasRunning = false;
 
-    // FUNÇÃO AUXILIAR: Converte segundos (float) em string "MM:SS"
     const checkTriggerConnection = async () => {
         try {
             const response = await fetch('/get-connection-trigger');
@@ -34,6 +39,69 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerStatusIndicator.classList.add('error');
             triggerStatusIndicator.classList.remove('connected');
             triggerStatusText.textContent = 'Erro de Conexão';
+        }
+    };
+    const checkTMSConnection = async () => {
+        try {
+            const response = await fetch('/get-connection-tms');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const connectionStatus = await response.json();
+
+            if (connectionStatus.is_connected) {
+                tmsStatusIndicator.classList.add('connected');
+                tmsStatusIndicator.classList.remove('error');
+                tmsStatusText.textContent = 'TMS Conectado';
+            } else {
+                tmsStatusIndicator.classList.remove('connected');
+                tmsStatusIndicator.classList.add('error');
+                tmsStatusText.textContent = 'TMS Desconectado';
+            }
+        } catch (error) {
+            tmsStatusIndicator.classList.add('error');
+            tmsStatusIndicator.classList.remove('connected');
+            tmsStatusText.textContent = 'Erro de Conexão';
+        }
+    };
+
+const checkNavigationConnection = async () => {
+        try {
+            const response = await fetch('/status-navigation');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const connectionStatus = await response.json();
+
+            if (connectionStatus.is_connected) {
+                navigationStatusIndicator.classList.add('connected');
+                navigationStatusIndicator.classList.remove('error');
+                navigationStatusText.textContent = 'Navegação Conectada';
+                if (connectionStatus.target) {
+                    targetStatusIndicator.classList.add('connected');
+                    targetStatusIndicator.classList.remove('error');
+                    targetStatusText.textContent = 'No alvo';
+                } else {
+                    targetStatusIndicator.classList.remove('connected');
+                    targetStatusIndicator.classList.add('error');
+                    targetStatusText.textContent = 'Fora do alvo';
+                }
+            } else {
+                navigationStatusIndicator.classList.remove('connected');
+                navigationStatusIndicator.classList.add('error');
+                navigationStatusText.textContent = 'Navegação Desconectada';
+                targetStatusIndicator.classList.remove('connected');
+                targetStatusIndicator.classList.add('error');
+                targetStatusText.textContent = 'Sem alvo';
+        }
+        } catch (error) {
+            console.error('Erro ao verificar conexão do trigger:', error);
+            navigationStatusIndicator.classList.add('error');
+            navigationStatusIndicator.classList.remove('connected');
+            navigationStatusText.textContent = 'Erro de Conexão';
+            targetStatusIndicator.classList.remove('connected');
+            targetStatusIndicator.classList.add('error');
+            targetStatusText.textContent = 'Erro de Conexão';
         }
     };
 
@@ -128,7 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicia o polling.
     updateStatus();
-    pollingInterval = setInterval(updateStatus, 500); // Polling rápido para atualização fluida
+    pollingInterval = setInterval(updateStatus, 500); //
     checkTriggerConnection();
-    setInterval(checkTriggerConnection, 500); // Check every 5 seconds
+    checkTMSConnection();
+    checkNavigationConnection();
+    setInterval(checkTriggerConnection, 500); 
+    setInterval(checkTMSConnection, 500); 
+    setInterval(checkNavigationConnection, 500); 
+    setInterval(checkTarget, 500); 
 });

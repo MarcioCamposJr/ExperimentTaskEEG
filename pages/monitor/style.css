@@ -116,6 +116,10 @@ body {
 
 .connection-status-container {
     margin-top: 15px;
+    display: flex; /* Added for flexbox layout */
+    flex-wrap: wrap; /* Added to allow items to wrap */
+    justify-content: center; /* Center items horizontally */
+    gap: 15px; /* Space between status items */
 }
 
 .connection-status {
