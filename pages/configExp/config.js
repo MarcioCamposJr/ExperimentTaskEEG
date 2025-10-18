@@ -1,3 +1,5 @@
+import { updateStatusIndicator, fetchAndPopulateDropdown, handleDeviceConnection, checkDeviceStatus } from '/utils/updateStates.js';
+
 const TASK_CONFIG = [
     {
         id: 'finger_tapping',
@@ -12,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const trialTypeSelect = document.getElementById('trial-type');
 
     const arduinoPort= document.getElementById('arduino-port');
+    const arduinoBaudrate = document.getElementById('arduino-baudrate');
     const triggerConnectButtom = document.querySelector('.arduino-settings .connect-button');
     const triggerStatusIndicator = document.querySelector('.arduino-settings .status-indicator');
     const triggerStatusText = document.querySelector('.arduino-settings .status-text');
@@ -23,9 +26,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tmsStartButton = document.querySelector('.tms-toggle-button');
 
-    const navigationStatusIndicator = document.querySelector('.navigation-system-content .status-indicator');
-    const navigationStatusText = document.querySelector('.navigation-system-content .status-text')
+    const navigationLink = document.getElementById("nav-system-link");
     const navigationButton = document.getElementById("connect-buttom-navigation");
+    const navigationStatusIndicator = document.querySelector('.navigation-system-content .status-indicator');
+    const navigationStatusText = document.querySelector('.navigation-system-content .status-text');
 
     const startButton = document.querySelector('.start-button'); 
 
@@ -58,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 trialTypeSelect.appendChild(option);
             });
         }else {
-            trialTypeGruop.style.display = 'none'
+            trialTypeGroup.style.display = 'none'
         }
     }
 
@@ -84,150 +88,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const getTriggerPorts = async () =>{
-
-        try{
-            const response = await fetch('/ports-trigger');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            data.forEach((port, index) => {
-                const option = document.createElement('option');
-                option.value = port;
-                option.textContent = port;
-                arduinoPort.appendChild(option);
-            });
-
-        }catch(error){
-            console.error("Erro ao buscar status:", error);
-        }
-
-    }
-    const getTMSPorts = async () =>{
-
-        try{
-            const response = await fetch('/ports-tms');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            data.forEach((port, index) => {
-                const option = document.createElement('option');
-                option.value = port.name;
-                option.textContent = port.description;
-                tmsPort.appendChild(option);
-            });
-
-        }catch(error){
-            console.error("Erro ao buscar status:", error);
-        }
-
-    }
-    const checkTmsConnection = async () => {
-        try {
-            const response = await fetch('/get-connection-tms');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const connectionStatus = await response.json();
-
-            if (connectionStatus.is_connected) {
-                tmsStatusIndicator.classList.add('connected');
-                tmsStatusIndicator.classList.remove('error');
-                tmsStatusText.textContent = 'Conectado';
-                document.getElementById('tms-port').value = connectionStatus.port;
-            } else {
-                tmsStatusIndicator.classList.remove('connected');
-                tmsStatusIndicator.classList.remove('error');
-                tmsStatusText.textContent = 'Desconectado';
-            }
-        } catch (error) {
-            console.error('Erro ao verificar conexão do tms:', error);
-            tmsStatusIndicator.classList.add('error');
-            tmsStatusIndicator.classList.remove('connected');
-            tmsStatusText.textContent = 'Erro';
-        }
-    };
-
-    const checkTriggerConnection = async () => {
-        try {
-            const response = await fetch('/get-connection-trigger');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const connectionStatus = await response.json();
-
-            if (connectionStatus.is_connected) {
-                triggerStatusIndicator.classList.add('connected');
-                triggerStatusIndicator.classList.remove('error');
-                triggerStatusText.textContent = 'Conectado';
-                document.getElementById('arduino-port').value = connectionStatus.port_name;
-                document.getElementById('arduino-baudrate').value = connectionStatus.boudrate;
-            } else {
-                triggerStatusIndicator.classList.remove('connected');
-                triggerStatusIndicator.classList.remove('error');
-                triggerStatusText.textContent = 'Desconectado';
-            }
-        } catch (error) {
-            console.error('Erro ao verificar conexão do trigger:', error);
-            triggerStatusIndicator.classList.add('error');
-            triggerStatusIndicator.classList.remove('connected');
-            triggerStatusText.textContent = 'Erro';
-        }
-    };
-
-    const checkTmsStatus = async () => {
-        try {
-            const response = await fetch('/get-tms-status');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const status = await response.json();
-            isTmsActive = status.is_active;
-            updateTmsButtonState();
-        } catch (error) {
-            console.error('Erro ao verificar status do TMS:', error);
-        }
-    };
+    // --- Event Listeners ---
 
     triggerConnectButtom.addEventListener('click', async () => {
         const config = {
             port: arduinoPort.value,
-            boudrate: parseInt(document.getElementById('arduino-baudrate').value || 9600)
+            boudrate: parseInt(arduinoBaudrate.value || 9600)
         };
-
-        try {
-            const response = await fetch('/connect-trigger', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(config)
-            });
-
-            const is_connected_trigger = await response.json();
-
-            if (is_connected_trigger) {
-                triggerStatusIndicator.classList.add('connected');
-                triggerStatusIndicator.classList.remove('error');
-                triggerStatusText.textContent = 'Conectado';
-            } else {
-                triggerStatusIndicator.classList.add('error');
-                triggerStatusIndicator.classList.remove('connected');
-                triggerStatusText.textContent = 'Falha na conexão';
-            }
-
-        } catch (error) {
-            console.error('Erro ao enviar configuração:', error);
-            triggerStatusIndicator.classList.add('error');
-            triggerStatusIndicator.classList.remove('connected');
-            triggerStatusText.textContent = 'Erro';
-        }
+        await handleDeviceConnection('/connect-trigger', config, triggerStatusIndicator, triggerStatusText, 'Conectado', 'Desconectado');
     });
 
     tmsConnectButtom.addEventListener('click', async () => {
@@ -235,69 +103,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             port: tmsPort.value,
             port_name: tmsPort.options[tmsPort.selectedIndex].textContent
         };
-
-        try {
-            const response = await fetch('/connect-tms', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(config)
-            });
-
-            const is_connected_tms = await response.json();
-
-            if (is_connected_tms) {
-                tmsStatusIndicator.classList.add('connected');
-                tmsStatusIndicator.classList.remove('error');
-                tmsStatusText.textContent = 'Conectado';
-            } else {
-                tmsStatusIndicator.classList.add('error');
-                tmsStatusIndicator.classList.remove('connected');
-                tmsStatusText.textContent = 'Falha na conexão';
-            }
-
-        } catch (error) {
-            console.error('Erro ao enviar configuração:', error);
-            tmsStatusIndicator.classList.add('error');
-            tmsStatusIndicator.classList.remove('connected');
-            tmsStatusText.textContent = 'Erro';
-        }
+        await handleDeviceConnection('/connect-tms', config, tmsStatusIndicator, tmsStatusText, 'Conectado', 'Desconectado');
     });
 
     navigationButton.addEventListener('click', async () => {
+        const navLinkValue = navigationLink.value;
+        const [address, port] = navLinkValue.replace('http://', '').split(':');
         const config = {
-            remote_host: document.getElementById("nav-system-link").value
-            // remote_host: document.querySelector(".navigation-system-content .status-indicator")
-        }
-        try{
-            const response = await fetch('/connection-navigation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', 
-                },
-                body: JSON.stringify(config) 
-            });
-            const is_connected = await response.json();
-
-            if (is_connected) {
-                navigationStatusIndicator.classList.add('connected');
-                navigationStatusIndicator.classList.remove('error');
-                navigationStatusText.textContent = 'Conectado';
-            } else {
-                navigationStatusIndicator.classList.add('error');
-                navigationStatusIndicator.classList.remove('connected');
-                navigationStatusText.textContent = 'Falha na conexão';
-            }
-        }catch (error) {
-            console.error('Erro ao enviar configuração:', error);
-            navigationStatusIndicator.classList.add('error');
-            navigationStatusIndicator.classList.remove('connected');
-            navigationStatusText.textContent = 'Falha na conexão';
-        }
+            address: address,
+            port: parseInt(port)
+        };
+        await handleDeviceConnection('/connect-navigation', config, navigationStatusIndicator, navigationStatusText, 'Conectado', 'Desconectado');
     });
 
-    
     startButton.addEventListener('click', async () => {
         
         const config = {
@@ -316,6 +134,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify(config) 
             });
+            if (!response.ok) {
+                throw new Error(`Erro ao enviar configuração: ${response.status} ${response.statusText}`);
+            }
             const data = await response.json();
             console.log('Resposta do servidor:', data);
             window.location.href ='/monitor';
@@ -336,7 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify(config) 
             });
             if (!response.ok) {
-                isTmsActive = !isTmsActive;
+                isTmsActive = !isTmsActive; // Revert state on error
                 throw new Error(`Erro ao buscar dados: ${response.status} ${response.statusText}`);
             }
             updateTmsButtonState();
@@ -345,14 +166,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    await getTMSPorts();
-    await checkTmsConnection();
-    await getTriggerPorts();
-    await checkTriggerConnection();
-    await checkTmsStatus();
-    initializeTaskButtons();
-    
-    if(TASK_CONFIG.length > 0){
-        updateUIForTask(TASK_CONFIG[0].id);
+    // --- Initial Load and Checks ---
+    try {
+        await fetchAndPopulateDropdown('/ports-tms', tmsPort, 'name', 'description');
+        await checkDeviceStatus('/get-connection-tms', tmsStatusIndicator, tmsStatusText, 'Conectado', 'Desconectado', { 'tms-port': 'port' });
+        await fetchAndPopulateDropdown('/ports-trigger', arduinoPort);
+        await checkDeviceStatus('/get-connection-trigger', triggerStatusIndicator, triggerStatusText, 'Conectado', 'Desconectado', { 'arduino-port': 'port_name', 'arduino-baudrate': 'boudrate' });
+        await checkDeviceStatus('/get-navigation-status', navigationStatusIndicator, navigationStatusText, 'Conectado', 'Desconectado', { 'nav-system-link': (status) => `http://${status.address}:${status.port}` });
+    } catch (error) {
+        console.error("Erro durante a carga inicial ou verificação de conexão:", error);
+    } finally {
+        initializeTaskButtons();
+        if(TASK_CONFIG.length > 0){
+            updateUIForTask(TASK_CONFIG[0].id);
+        }
     }
 });

@@ -4,8 +4,8 @@ import threading
 from collections import deque
 
 class NavigationMessaging:
-    def __init__(self, history_size=10):
-        self.__remote_host = ''
+    def __init__(self, history_size=10, remote_host = ''):
+        self.__remote_host = remote_host
         self.__connected = False
         self.__sio = socketio.Client()
         self.__coil_at_target_history = deque(maxlen=history_size) # Stores last N states
@@ -47,7 +47,9 @@ class NavigationMessaging:
 
     def get_coil_at_target(self):
         with self.__lock:
-            return all(list(self.__coil_at_target_history)) # Return a copy of the deque as a list
+            if not self.__coil_at_target_history:
+                return False
+            return all(list(self.__coil_at_target_history))
 
     def is_connected(self):
         return self.__connected
