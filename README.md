@@ -43,7 +43,12 @@ The system leverages a web-based interface for experiment configuration, monitor
     *   Ensure your MagVenture stimulator is properly connected and configured according to its documentation.
     *   The system expects to communicate with it via a serial port, which will be selectable in the configuration panel.
 7.  **Invesalius Software:**
-    *   Install Invesalius and ensure it's configured for neuronavigation as required by your experimental setup. (Note: Direct integration details with Invesalius are not fully implemented in the provided code, but the system is designed to be compatible).
+    *   Install Invesalius and ensure it's configured for neuronavigation as required by your experimental setup.
+    *   To connect the experiment system with Invesalius for neuronavigation, you need to run the `navigation_server.py` script. This script acts as a bridge, forwarding messages from Invesalius to the experiment system. You can run it using the following command:
+        ```bash
+        python navigation_server.py [host] port
+        ```
+    *   If you are using a robotic navigation system that already provides a compatible Socket.IO server, you don't need to run `navigation_server.py`. Instead, you can directly provide the address and port of your existing server in the configuration panel of the experiment.
 
 ## Usage
 
