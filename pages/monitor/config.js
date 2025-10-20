@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicia o polling.
     updateStatus();
-    pollingInterval = setInterval(updateStatus, 500); 
+    pollingInterval = setInterval(updateStatus, 50); 
 
     // Initial checks for device connections
     checkDeviceStatus(
@@ -159,13 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
         triggerStatusText,
         'Trigger Conectado',
         'Trigger Desconectado'
-    ), 500);
+    ), 50);
     setInterval(() => checkDeviceStatus(
         '/get-connection-tms',
         tmsStatusIndicator,
         tmsStatusText,
         'TMS Conectado',
         'TMS Desconectado'
-    ), 500);
-    setInterval(checkNavigationAndTargetStatus, 500); 
+    ), 50);
+    setInterval(checkNavigationAndTargetStatus, 50); 
 });

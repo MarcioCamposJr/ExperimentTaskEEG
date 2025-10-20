@@ -51,9 +51,17 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
             if app.state.experiment['tms'] and remaining_duration - config.task_duration_seconds < -(config.tms_time/ 1000) and not pulsed:
                 if navigation.navigation.is_connected:
                     while not navigation.on_taget():
+                        while app.state.experiment['status'] == FingerTappingStatus.paused:
+                            await asyncio.sleep(sleep_check_interval)
+                            if app.state.experiment['status'] == FingerTappingStatus.canceled:
+                                break
                         await asyncio.sleep(sleep_check_interval)
-                pulsed = True
-                await tms.single_pulse()
+                    if app.state.experiment['status'] == FingerTappingStatus.canceled:
+                        break
+                    else:
+                        pulsed = True
+                        await tms.single_pulse()
+                        await asyncio.sleep(sleep_check_interval)
 
     app.state.experiment['is_running'] = False
 
