@@ -1,9 +1,9 @@
-from models.experiment import FingerTappingConfig, FingerTappingStatus
-from utils import trigger, tms, navigation
+from models.experiment import FingerTappingConfig, FingerTappingStatus, FingerTappingStimulus
+from utils import trigger, tms, navigation, websocket_helpers
 
 import asyncio
 from fastapi import FastAPI
-from time import time
+from time import time, perf_counter
 
 dict_stimulus = {
     0: {"instruction": "Descanse", "color": "gray"},
@@ -15,31 +15,41 @@ dict_stimulus = {
 sleep_check_interval = 0.001 
 
 async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = None):
+    app.state.experiment['is_running'] = True
     app.state.experiment['total_trial'] = config.num_trials
     app.state.experiment['trial_duration'] = config.task_duration_seconds
     app.state.experiment['status'] = FingerTappingStatus.running  #'running', 'paused', 'canceled', 'finished'
+    app.state.experiment['remaining_duration'] = 0
+    app.state.experiment['time_remaining'] = 0
 
     exp_start_time = time()
     app.state.experiment['exp_start_time'] = exp_start_time
     total_duration = config.task_duration_seconds * config.num_trials
 
     for idx_trial, stimulus in enumerate(sequence):
-        pulsed = False
+        if app.state.experiment['status'] == FingerTappingStatus.canceled:
+            break
+        app.state.experiment['trigger'] = pulsed = False
+        app.state.experiment['is_running'] = True
         app.state.experiment['color'] = dict_stimulus[stimulus]['color']
         app.state.experiment['instruction'] = dict_stimulus[stimulus]['instruction']
+        payload_ws = websocket_helpers.build_payload(FingerTappingStimulus(is_running=True, color=dict_stimulus[stimulus]['color'], instruction=dict_stimulus[stimulus]['instruction']))
         app.state.experiment['current_step'] = idx_trial
         app.state.experiment['trial_start_time'] = time()
         remaining_duration = config.task_duration_seconds
 
+        if not await websocket_helpers.broadcast_state(app, payload_ws):
+            while not app.state.experiment['trigger']:
+                await asyncio.sleep(sleep_check_interval)
+
         await trigger.pulse_default_trigger()
-        while remaining_duration > 0 and app.state.experiment['status'] != 'canceled':
+        while remaining_duration > 0 and app.state.experiment['status'] != FingerTappingStatus.canceled:
             while app.state.experiment['status'] == FingerTappingStatus.paused:
                 await asyncio.sleep(sleep_check_interval)
                 if app.state.experiment['status'] == FingerTappingStatus.canceled:
                     break 
             if app.state.experiment['status'] == FingerTappingStatus.canceled:
                 break
-
             current_time = time()
             await asyncio.sleep(sleep_check_interval)
             elapsed = time() - current_time
@@ -63,6 +73,8 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
                     await tms.single_pulse()
                     await asyncio.sleep(sleep_check_interval)
 
+    payload_ws = websocket_helpers.build_payload(FingerTappingStimulus(is_running=False, color='gray', instruction='Finalizado'))
+    await websocket_helpers.broadcast_state(app, payload_ws)
     app.state.experiment['is_running'] = False
 
 def generate_sequence(taskType, num_trials):

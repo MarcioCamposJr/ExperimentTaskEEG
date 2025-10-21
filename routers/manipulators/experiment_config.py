@@ -1,15 +1,15 @@
 from models import experiment
 from experiments.fingertapping import start_exp, generate_sequence
 
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request, BackgroundTasks, WebSocket, WebSocketDisconnect
 from time import time
+import json
 
 config_routers= APIRouter()
 
 @config_routers.post("/set-config")
 async def set_config(config: experiment.FingerTappingConfig, request: Request, background_tasks: BackgroundTasks):
     if not request.app.state.experiment['is_running']:
-        request.app.state.experiment['is_running'] = True
         sequence = generate_sequence(config.movement_type, config.num_trials)
         background_tasks.add_task(start_exp, config,sequence, request.app)
         return {"message": "Experiment started in the background"}
@@ -18,7 +18,6 @@ async def set_config(config: experiment.FingerTappingConfig, request: Request, b
 async def get_state_exp(request: Request):
     exp_state = request.app.state.experiment
     if exp_state.get('is_running'):
-
         return experiment.FingerTappingState(
             idx_trial=exp_state.get("current_step", 0),
             total_trial=exp_state.get("total_trial", 0),
@@ -53,4 +52,17 @@ async def set_stimulus(status: experiment.StatusFingerTappingPayload, request: R
                 return
     
         request.app.state.experiment['status'] = status
-        
+
+@config_routers.websocket("/ws/stimulus")
+async def ws_stimulus(ws: WebSocket):
+    await ws.accept()
+    clients = ws.app.state.__dict__.setdefault("ws_clients", set())
+    clients.add(ws)
+    try:
+        while True:
+            response = await ws.receive_json()
+            ws.app.state.experiment['trigger'] = response.get('trigger', False)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        clients.discard(ws)

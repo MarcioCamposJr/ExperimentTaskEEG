@@ -19,5 +19,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
             console.error("Erro ao buscar estímulo:", error);
         }
     }
-    setInterval(updateStimulus, 50);
+
+    function connect() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    console.log(`${proto}://${location.host}/ws/stimulus`)
+    const ws = new WebSocket(`${proto}://${location.host}/ws/stimulus`);
+    ws.onmessage = (ev) => {
+        const { r, c, i } = JSON.parse(ev.data);
+        circleElement.style.backgroundColor = r ? c : 'gray';
+        instructionElement.textContent = r ? i : 'Aguarde';
+        ws.send(JSON.stringify({trigger: true}));
+    };
+    ws.onclose = () => setTimeout(connect, 500);
+    }
+    connect();
+    updateStimulus()
 });
