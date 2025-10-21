@@ -167,12 +167,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // --- Initial Load and Checks ---
+
+    const checkTMSEnable = async() =>{
+        try {
+            const response = await fetch('/get-tms-status');
+            if (response.ok) {
+                const data = await response.json();
+                isTmsActive = data.is_active;
+            }
+            updateTmsButtonState();
+        }catch (error) {
+            console.error('Erro ao enviar configuração:', error);
+        }
+
+    }
+
     try {
         await fetchAndPopulateDropdown('/ports-tms', tmsPort, 'name', 'description');
         await checkDeviceStatus('/get-connection-tms', tmsStatusIndicator, tmsStatusText, 'Conectado', 'Desconectado', { 'tms-port': 'port' });
         await fetchAndPopulateDropdown('/ports-trigger', arduinoPort);
         await checkDeviceStatus('/get-connection-trigger', triggerStatusIndicator, triggerStatusText, 'Conectado', 'Desconectado', { 'arduino-port': 'port_name', 'arduino-baudrate': 'boudrate' });
         await checkDeviceStatus('/get-navigation-status', navigationStatusIndicator, navigationStatusText, 'Conectado', 'Desconectado', { 'nav-system-link': (status) => `http://${status.address}:${status.port}` });
+        await checkTMSEnable();
     } catch (error) {
         console.error("Erro durante a carga inicial ou verificação de conexão:", error);
     } finally {
