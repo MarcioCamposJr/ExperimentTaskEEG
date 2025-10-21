@@ -40,19 +40,12 @@ class ArduinoConnection():
         except:
             self.arduino_connected = False
 
-    def read_from_arduino(self):
+    async def read_from_arduino(self):
         read = self.device.readline()
         read = read.decode('utf-8')
         read = read.strip()
 
-        try:
-            read = int(read)  # converte a string para um número inteiro
-            #print(read)  # exibe o número
-            return read
-        except ValueError:
-            print("Não foi possível converter para número:", read)
-        #print(self.device.readline())
-        #return read
+        return read
 
     async def check_connection(self):
         if self.device is not None:

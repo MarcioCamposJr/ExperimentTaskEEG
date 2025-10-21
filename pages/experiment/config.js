@@ -33,5 +33,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
     ws.onclose = () => setTimeout(connect, 500);
     }
     connect();
-    updateStimulus()
+    updateStimulus();
 });

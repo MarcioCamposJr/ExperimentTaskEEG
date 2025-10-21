@@ -1,5 +1,6 @@
 const int LED_BUILTIN_PIN = 2; 
-const int TRIGGER_TTL_PIN = 23; 
+const int TRIGGER_TTL_PIN = 15; 
+const int TRIGGER_TTL_TMS_PIN = 13; 
 const int DURATION_MS = 100;
 
 String incomingString = "";
@@ -23,13 +24,10 @@ void loop() {
       incomingString.trim(); 
       incomingString.toUpperCase();
 
-      Serial.print("Comando Recebido: ");
-      Serial.println(incomingString);
-
       if (incomingString.equals("SINGLE")) {
-        activate_trigger_and_blink();
-      } else {
-        Serial.println("Comando inválido. Use 'SINGLE'.");
+        activate_trigger_and_blink(TRIGGER_TTL_PIN);
+      } else if(incomingString.equals("SINGLE_TMS")){
+        activate_trigger_and_blink(TRIGGER_TTL_TMS_PIN);
       }
       
       incomingString = ""; 
@@ -39,16 +37,16 @@ void loop() {
   }
 }
 
-void activate_trigger_and_blink() {
-  digitalWrite(TRIGGER_TTL_PIN, HIGH); 
+void activate_trigger_and_blink(int pin) {
+  digitalWrite(pin, HIGH); 
   
   digitalWrite(LED_BUILTIN_PIN, HIGH);
   
   delay(DURATION_MS); 
 
-  digitalWrite(TRIGGER_TTL_PIN, LOW); 
+  digitalWrite(pin, LOW); 
 
   digitalWrite(LED_BUILTIN_PIN, LOW);
 
-  Serial.println("Ação concluída: LED piscou e Trigger TTL foi disparado.");
+  Serial.println("True");
 }

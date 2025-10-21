@@ -12,7 +12,6 @@ async def connect(port, port_name):
 async def enable(enable):
     if stim.is_connected:
         if enable:
-            print(enable)
             stim.magventure_device.arm()
         else:
             stim.magventure_device.disarm()
