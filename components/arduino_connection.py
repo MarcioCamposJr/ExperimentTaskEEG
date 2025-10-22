@@ -71,7 +71,7 @@ class ArduinoConnection():
                 self.arduino_connected = False
             else:
                 try:
-                    await self.send_to_arduino('t')
+                    self.send_to_arduino('t')
                 except serial.SerialException:
                     self.arduino_connected = False
                 if not self.arduino_connected:
