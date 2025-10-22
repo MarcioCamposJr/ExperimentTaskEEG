@@ -1,5 +1,7 @@
 import serial
-import serial.tools.list_ports as lp
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import time
 
 class ArduinoConnection():
     def __init__(self):
@@ -8,6 +10,8 @@ class ArduinoConnection():
         self.baudrate = 0
         self.port = ''
         self.port_name = ''
+        self.lock = threading.Lock() 
+        self.executor = ThreadPoolExecutor(max_workers=2) 
 
     def connect(self, port, baudrate, port_name):
         try:
@@ -33,20 +37,34 @@ class ArduinoConnection():
         else:
             print("Arduino is not connected")
 
-    async def send_to_arduino(self, message):
+    def send_to_arduino(self, message):
+        """Send a message to Arduino using a thread from the pool."""
+        if self.arduino_connected:
+            self.executor.submit(self._send_message, message)
+
+    def _send_message(self, message):
+        """Actual function that sends the message to Arduino (blocking I/O)."""
         try:
-            if self.arduino_connected:
+            with self.lock:  # Ensures that only one thread writes to the serial at a time
                 self.device.write((str(message) + '\n').encode())
-        except:
+        except serial.SerialException:
             self.arduino_connected = False
 
-    async def read_from_arduino(self):
-        read = self.device.readline()
-        read = read.decode('utf-8')
-        read = read.strip()
+    def read_from_arduino(self):
+        """Read from Arduino using a thread from the pool."""
+        if self.arduino_connected:
+            self.executor.submit(self._read_message)
 
-        return read
-
+    def _read_message(self):
+        """Actual function that reads from Arduino (blocking I/O)."""
+        try:
+            with self.lock:
+                read = self.device.readline()
+                read = read.decode('utf-8')
+                read = read.strip()
+                print(f"Read from Arduino: {read}")
+        except serial.SerialException:
+            self.arduino_connected = False
     async def check_connection(self):
         if self.device is not None:
             if not self.device.is_open:
@@ -56,6 +74,6 @@ class ArduinoConnection():
                     await self.send_to_arduino('t')
                 except serial.SerialException:
                     self.arduino_connected = False
-                
                 if not self.arduino_connected:
                     self.connect(self.port, self.baudrate, self.port_name)
+    

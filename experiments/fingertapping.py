@@ -4,6 +4,7 @@ from utils import trigger, tms, navigation, websocket_helpers
 import asyncio
 from fastapi import FastAPI
 from time import time, perf_counter
+import threading
 
 dict_stimulus = {
     0: {"instruction": "Descanse", "color": "gray"},
@@ -42,7 +43,7 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
             while not app.state.experiment['trigger']:
                 await asyncio.sleep(sleep_check_interval)
 
-        await trigger.pulse_default_trigger()
+        trigger.pulse_default_trigger()
         while remaining_duration > 0 and app.state.experiment['status'] != FingerTappingStatus.canceled:
             while app.state.experiment['status'] == FingerTappingStatus.paused:
                 await asyncio.sleep(sleep_check_interval)
@@ -70,7 +71,7 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
                         await asyncio.sleep(sleep_check_interval)
                 if not pulsed:
                     pulsed = True
-                    await trigger.pulse_tms_trigger()
+                    trigger.pulse_tms_trigger()
 
     payload_ws = websocket_helpers.build_payload(FingerTappingStimulus(is_running=False, color='gray', instruction='Finalizado'))
     await websocket_helpers.broadcast_state(app, payload_ws)

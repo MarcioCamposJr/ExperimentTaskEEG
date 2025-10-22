@@ -9,12 +9,10 @@ def connect_trigger(port, boud_rate = None):
     arduino.connect(port=match.group(), baudrate = boud_rate, port_name=port)
     return arduino.arduino_connected
 
-async def pulse_default_trigger():
+def pulse_default_trigger():
     if arduino.arduino_connected:
-        await arduino.send_to_arduino("SINGLE")
-        await arduino.read_from_arduino()
+        arduino.send_to_arduino("SINGLE")
 
-async def pulse_tms_trigger():
+def pulse_tms_trigger():
     if arduino.arduino_connected:
-        await arduino.send_to_arduino("SINGLE_TMS")
-        await arduino.read_from_arduino()
+        arduino.send_to_arduino("SINGLE_TMS")
