@@ -1,5 +1,6 @@
 from models.experiment import FingerTappingConfig, FingerTappingStatus, FingerTappingStimulus
 from utils import trigger, tms, navigation, websocket_helpers
+from utils.experimental_helpers import elepesed_time
 
 import asyncio
 from fastapi import FastAPI
@@ -41,8 +42,7 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
 
         if not await websocket_helpers.broadcast_state(app, payload_ws):
             while not app.state.experiment['trigger']:
-                await asyncio.sleep(sleep_check_interval)
-
+                remaining_duration, total_duration = await elepesed_time(sleep_check_interval, remaining_duration, total_duration)
         trigger.pulse_default_trigger()
         while remaining_duration > 0 and app.state.experiment['status'] != FingerTappingStatus.canceled:
             while app.state.experiment['status'] == FingerTappingStatus.paused:
@@ -51,11 +51,8 @@ async def start_exp(config: FingerTappingConfig, sequence = [], app: FastAPI = N
                     break 
             if app.state.experiment['status'] == FingerTappingStatus.canceled:
                 break
-            current_time = time()
-            await asyncio.sleep(sleep_check_interval)
-            elapsed = time() - current_time
-            remaining_duration -= elapsed
-            total_duration -= elapsed
+
+            remaining_duration, total_duration = await elepesed_time(sleep_check_interval, remaining_duration, total_duration)
 
             app.state.experiment['remaining_duration'] = max(0, remaining_duration)
             app.state.experiment['time_remaining'] = max(0, total_duration)
